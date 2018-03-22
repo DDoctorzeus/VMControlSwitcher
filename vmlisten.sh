@@ -2,15 +2,30 @@
 
 #NOTE: REQUIRES NETCAT!
 
-#Set These
-LISTENIP="10.0.0.1";
-LISTENPORT=25693;
-VMNAME="win10";
-DEVICEXMLS=('keyboard.xml' 'mouse.xml');
+if [ $# -lt 4 ]; then
+	echo "USAGE: ./command.sh hostname listenport vmtodetachname pathtoxmldirectory";
+	exit 1;
+fi
 
-#Dont Touch These
-EXIT=0;
-DEVICESATTATCHED=0;
+#Get Basic Info
+declare LISTENIP="$1";
+declare LISTENPORT="$2";
+declare VMNAME="$3";
+declare DIRECTORYPATH="$4";
+declare -a DEVICEXMLS;
+declare EXIT=0;
+
+#Check directory exists
+if [ ! -d "$DIRECTORYPATH" ]; then
+	echo "ERROR: Specified directory does not exist!";
+	exit 1;
+fi
+
+#Now get device xmls
+for f in $(ls $DIRECTORYPATH/*.xml) ; do
+	echo "Adding Device Specified At $f";
+	DEVICEXMLS+=("$f");
+done
 
 echo "Listening For Commands On $LISTENIP:$LISTENPORT";
 while [ $EXIT -eq 0 ]; do
@@ -34,3 +49,5 @@ while [ $EXIT -eq 0 ]; do
 		echo "Got \"$RECEIVED\" - Ignoring"
 	fi
 done
+
+return 0;
